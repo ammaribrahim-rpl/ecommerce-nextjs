@@ -1,8 +1,20 @@
 @import "tailwindcss";
 
+/* ================================================================
+   DESIGN SYSTEM — Karisma Grosir
+   Premium e-commerce, emerald + slate palette
+================================================================ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafb;
+  --foreground: #0f172a;
+  --brand-50:  #ecfdf5;
+  --brand-100: #d1fae5;
+  --brand-500: #10b981;
+  --brand-600: #059669;
+  --brand-700: #047857;
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+  --shadow-pop:  0 4px 24px -4px rgb(0 0 0 / 0.12), 0 2px 8px -2px rgb(0 0 0 / 0.06);
 }
 
 @theme inline {
@@ -12,15 +24,106 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans, system-ui, sans-serif);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
+
+/* ── Scrollbar ─────────────────────────────────────────────────── */
+::-webkit-scrollbar          { width: 6px; height: 6px; }
+::-webkit-scrollbar-track    { background: transparent; }
+::-webkit-scrollbar-thumb    { background: #cbd5e1; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ── Focus & selection ─────────────────────────────────────────── */
+:focus-visible { outline: 2px solid var(--brand-500); outline-offset: 2px; }
+::selection    { background: #a7f3d0; color: #064e3b; }
+
+img { display: block; max-width: 100%; }
+
+/* ── Animations ────────────────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
+.animate-fade-up    { animation: fade-up 0.35s ease both; }
+.animate-fade-in    { animation: fade-in 0.25s ease both; }
+.animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+
+/* ── Skeleton shimmer ──────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 0.5rem;
+}
+
+/* ── Glass ─────────────────────────────────────────────────────── */
+.glass {
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+/* ── Gradient text ─────────────────────────────────────────────── */
+.text-gradient {
+  background: linear-gradient(135deg,#059669 0%,#0d9488 50%,#0891b2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Card ──────────────────────────────────────────────────────── */
+.card {
+  background: #fff;
+  border-radius: 1.25rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: var(--shadow-card);
+}
+.card-hover { transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease; }
+.card-hover:hover { box-shadow: var(--shadow-pop); transform: translateY(-2px); border-color: #a7f3d0; }
+
+/* ── Status badges ─────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 99px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.badge-emerald { background:#d1fae5; color:#065f46; }
+.badge-blue    { background:#dbeafe; color:#1e40af; }
+.badge-orange  { background:#fed7aa; color:#9a3412; }
+.badge-red     { background:#fee2e2; color:#991b1b; }
+.badge-gray    { background:#f1f5f9; color:#475569; }
+.badge-purple  { background:#ede9fe; color:#5b21b6; }
+
+/* ── Divider ───────────────────────────────────────────────────── */
+.divider { border: none; border-top: 1px solid #e2e8f0; margin-block: 1.25rem; }

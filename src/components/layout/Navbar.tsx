@@ -124,15 +124,17 @@ export default function Navbar() {
 
           {/* User Account / Login */}
           {user ? (
-            <Link
-              href="/orders"
-              className="flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-emerald-500 hover:bg-emerald-50/50"
-            >
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 font-bold text-xs">
-                {user.name?.[0]?.toUpperCase() || 'U'}
-              </div>
-              <span className="hidden sm:inline max-w-[100px] truncate">{user.name}</span>
-            </Link>
+            <div className="relative group">
+              <Link
+                href="/profile"
+                className="flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-emerald-500 hover:bg-emerald-50/50 transition-all"
+              >
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 text-white font-black text-xs shadow-sm">
+                  {user.name?.[0]?.toUpperCase() || 'U'}
+                </div>
+                <span className="hidden sm:inline max-w-[100px] truncate">{user.name}</span>
+              </Link>
+            </div>
           ) : (
             <Link
               href="/auth/login"
@@ -203,13 +205,28 @@ export default function Navbar() {
               )}
             </Link>
             {user ? (
-              <Link
-                href="/orders"
-                onClick={() => setMobileMenuOpen(false)}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"
-              >
-                Pesanan Saya
-              </Link>
+              <>
+                <Link
+                  href="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"
+                >
+                  Profil Saya
+                </Link>
+                <Link
+                  href="/orders"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-emerald-50 hover:text-emerald-600"
+                >
+                  Pesanan Saya
+                </Link>
+                <Link
+                  href="/auth/logout"
+                  className="rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+                >
+                  Keluar
+                </Link>
+              </>
             ) : (
               <Link
                 href="/auth/login"

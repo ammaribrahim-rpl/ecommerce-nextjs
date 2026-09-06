@@ -75,14 +75,14 @@ export async function proxy(request: NextRequest) {
 
   // Redirect unauthenticated users away from protected routes
   if (requiresAuth(pathname) && !user) {
-    const loginUrl = new URL('/login', request.url)
+    const loginUrl = new URL('/auth/login', request.url)
     loginUrl.searchParams.set('redirectTo', pathname)
     return NextResponse.redirect(loginUrl)
   }
 
   // Redirect authenticated users away from auth pages
-  if (user && (pathname === '/login' || pathname === '/register')) {
-    return NextResponse.redirect(new URL('/', request.url))
+  if (user && (pathname === '/auth/login' || pathname === '/auth/register')) {
+    return NextResponse.redirect(new URL('/profile', request.url))
   }
 
   return supabaseResponse
