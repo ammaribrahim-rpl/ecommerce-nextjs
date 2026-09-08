@@ -23,38 +23,67 @@ export default function RegisterPage() {
 
     try {
       const supabase = createClient()
-      const { data, error: authError } = await supabase.auth.signUp({
+
+      // Step 1: Daftar akun baru
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: {
-            nama,
-            telepon,
-          },
+          data: { nama, telepon },
         },
       })
 
-      if (authError) {
-        setError(authError.message)
+      if (signUpError) {
+        if (signUpError.message.toLowerCase().includes('already registered') ||
+            signUpError.message.toLowerCase().includes('already exists') ||
+            signUpError.message.toLowerCase().includes('user already')) {
+          setError('Email ini sudah terdaftar. Silakan masuk dengan akun yang sudah ada.')
+        } else if (signUpError.message.toLowerCase().includes('rate limit')) {
+          setError('Terlalu banyak percobaan. Tunggu beberapa menit lalu coba lagi.')
+        } else {
+          setError(signUpError.message)
+        }
         return
       }
 
-      if (data.user) {
-        // Upsert into profiles table
-        await supabase.from('profiles').upsert({
-          id: data.user.id,
-          email,
-          nama,
-          telepon,
-          role: 'buyer',
-        })
-
-        setSuccess(true)
-        setTimeout(() => {
-          router.push('/')
-          router.refresh()
-        }, 1500)
+      if (!data.user) {
+        setError('Gagal membuat akun. Silakan coba lagi.')
+        return
       }
+
+      // Step 2: Simpan ke tabel profiles
+      await supabase.from('profiles').upsert({
+        id: data.user.id,
+        email,
+        nama,
+        telepon,
+        role: 'buyer',
+      })
+
+      // Step 3: Langsung login otomatis (tidak perlu konfirmasi email)
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+
+      if (signInError) {
+        // Jika email belum dikonfirmasi, arahkan ke halaman login dengan pesan
+        if (signInError.message.toLowerCase().includes('email not confirmed') ||
+            signInError.message.toLowerCase().includes('not confirmed')) {
+          setError(
+            'Akun berhasil dibuat namun email belum dikonfirmasi. ' +
+            'Silakan hubungi admin toko untuk mengaktifkan akun Anda, atau nonaktifkan verifikasi email di pengaturan Supabase.'
+          )
+          return
+        }
+        // Login gagal tapi akun sudah dibuat — arahkan ke login manual
+        setSuccess(true)
+        setTimeout(() => router.push('/auth/login'), 2000)
+        return
+      }
+
+      // Step 4: Berhasil! Redirect ke profil
+      setSuccess(true)
+      setTimeout(() => {
+        window.location.href = '/profile'
+      }, 1200)
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Terjadi kesalahan saat pendaftaran.'
       setError(msg)
@@ -88,7 +117,7 @@ export default function RegisterPage() {
         {success && (
           <div className="flex items-center gap-2 rounded-xl bg-emerald-50 p-3 text-xs font-medium text-emerald-700 border border-emerald-200">
             <CheckCircle2 className="h-4 w-4 shrink-0" />
-            <span>Pendaftaran berhasil! Mengalihkan ke toko...</span>
+            <span>Pendaftaran berhasil! Kamu sudah masuk otomatis. Mengalihkan ke profil...</span>
           </div>
         )}
 

@@ -26,8 +26,15 @@ function LoginForm() {
       if (authError) {
         if (authError.message === 'Invalid login credentials') {
           setError('Email atau kata sandi salah. Silakan periksa kembali.')
+        } else if (
+          authError.message.toLowerCase().includes('email not confirmed') ||
+          authError.message.toLowerCase().includes('not confirmed')
+        ) {
+          setError(
+            'Email kamu belum dikonfirmasi. Silakan hubungi admin toko atau minta admin untuk menonaktifkan verifikasi email di pengaturan Supabase.'
+          )
         } else if (authError.message.toLowerCase().includes('rate limit')) {
-          setError('Batas percobaan login terlampaui (rate limit dari Supabase). Tunggu beberapa saat (sekitar 5-10 menit) lalu coba kembali.')
+          setError('Batas percobaan login terlampaui. Tunggu beberapa saat (sekitar 5-10 menit) lalu coba kembali.')
         } else {
           setError(authError.message)
         }
