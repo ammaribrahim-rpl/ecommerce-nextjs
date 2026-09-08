@@ -106,6 +106,36 @@ export default function CartPage() {
         </div>
       </div>
     )
+  // Jika pengunjung adalah Tamu (Guest / Belum Login)
+  if (!userRole) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-20 text-center animate-fade-up">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-50 text-emerald-600 shadow-sm mb-6">
+          <ShoppingBag className="h-10 w-10" />
+        </div>
+        <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+          Masuk untuk Mengakses Keranjang
+        </h2>
+        <p className="mt-3 text-sm text-slate-600 leading-relaxed max-w-md mx-auto">
+          Pengunjung tamu hanya dapat melihat katalog barang. Silakan masuk (login) ke akun Anda terlebih dahulu untuk menambahkan barang ke keranjang belanja dan melakukan pemesanan.
+        </p>
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <Link
+            href="/auth/login?redirectTo=/cart"
+            className="flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white shadow-md hover:bg-emerald-700 transition-all"
+          >
+            <span>Masuk Sekarang</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link
+            href="/products"
+            className="flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-bold text-slate-700 hover:bg-gray-50 transition-all"
+          >
+            <span>Lihat Katalog Produk</span>
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   if (items.length === 0) {

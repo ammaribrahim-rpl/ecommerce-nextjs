@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Plus, Check } from 'lucide-react'
 import { formatRupiah } from '@/lib/utils/format'
 import { addToCart } from '@/services/cart.service'
@@ -12,6 +13,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const router = useRouter()
   const [adding, setAdding] = useState(false)
   const [added, setAdded] = useState(false)
 
@@ -20,9 +22,17 @@ export default function ProductCard({ product }: ProductCardProps) {
     e.stopPropagation()
     setAdding(true)
     try {
-      await addToCart(product, 1)
-      setAdded(true)
-      setTimeout(() => setAdded(false), 1600)
+      const res = await addToCart(product, 1)
+      if (res.requireLogin) {
+        router.push(`/auth/login?redirectTo=${encodeURIComponent(window.location.pathname)}`)
+        return
+      }
+      if (res.success) {
+        setAdded(true)
+        setTimeout(() => setAdded(false), 1600)
+      } else if (res.error) {
+        alert(res.error)
+      }
     } catch (err) {
       console.error('Failed to add to cart:', err)
     } finally {
@@ -41,16 +51,9 @@ export default function ProductCard({ product }: ProductCardProps) {
           className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
         />
 
-        {/* Brand Tag Badge */}
-        {product.merek_nama && (
-          <span className="absolute left-2.5 top-2.5 rounded-full bg-white/90 backdrop-blur-xs px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gray-800 shadow-xs">
-            {product.merek_nama}
-          </span>
-        )}
-
-        {/* Unit Badge */}
+        {/* Unit Badge (misal PCS / KRTN / DUS / RCG) */}
         {product.satuan && (
-          <span className="absolute right-2.5 top-2.5 rounded-md bg-gray-900/70 backdrop-blur-xs px-2 py-0.5 text-[10px] font-semibold text-white">
+          <span className="absolute right-2.5 top-2.5 rounded-md bg-gray-900/75 backdrop-blur-xs px-2 py-0.5 text-[10px] font-semibold text-white shadow-2xs">
             {product.satuan}
           </span>
         )}
@@ -58,7 +61,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       {/* Content Container */}
       <div className="flex flex-1 flex-col p-4">
-        {/* Category */}
+        {/* Category (Jenis Barang) */}
         {product.jenis_nama && (
           <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-600">
             {product.jenis_nama}
@@ -89,7 +92,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <button
             onClick={handleAddToCart}
             disabled={adding}
-            className={`flex h-9 w-9 items-center justify-center rounded-xl transition-all ${
+            className={`flex h-9 w-9 items-center justify-center rounded-xl transition-all cursor-pointer ${
               added
                 ? 'bg-emerald-600 text-white'
                 : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white'

@@ -15,6 +15,16 @@ export interface ProductItem {
   keterangan: string | null
   statusjual: string | null
   imageUrl: string
+  unitOptions?: ProductUnitOption[]
+}
+
+export interface ProductUnitOption {
+  satuan: string
+  hargajual: number
+  label?: string
+  isi?: number
+  isDefault?: boolean
+  kodeitem?: string
 }
 
 export interface ProductFilters {
@@ -52,10 +62,10 @@ export function getProductPlaceholderImage(nama: string, jenis?: string | null, 
   if (nameLower.includes('botol') || nameLower.includes('empeng') || nameLower.includes('sisir') || (merek || '').includes('RELLIABLE')) {
     return 'https://images.unsplash.com/photo-1584839447470-f472856fae85?w=500&auto=format&fit=crop&q=80'
   }
-  if (nameLower.includes('makan') || jenisLower.includes('mkn') || jenisLower.includes('food')) {
+  if (nameLower.includes('makan') || jenisLower.includes('mkn') || jenisLower.includes('food') || nameLower.includes('gula') || nameLower.includes('kopi')) {
     return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop&q=80'
   }
-  if (nameLower.includes('shampoo') || nameLower.includes('sabun') || nameLower.includes('skincare') || nameLower.includes('lactacyd')) {
+  if (nameLower.includes('shampoo') || nameLower.includes('sabun') || nameLower.includes('skincare') || nameLower.includes('lactacyd') || nameLower.includes('detergent') || nameLower.includes('royale') || nameLower.includes('daia')) {
     return 'https://images.unsplash.com/photo-1608248597359-25095d36e897?w=500&auto=format&fit=crop&q=80'
   }
   // Default clean aesthetic product photo
@@ -96,24 +106,33 @@ function transformProduct(item: RawProductData): ProductItem {
 }
 
 /**
- * Fetch products with filtering, search, sorting and pagination
+ * Fetch products with intelligent multi-word search, filtering, sorting and pagination
  */
 export async function getProducts(filters: ProductFilters = {}): Promise<ProductsResponse> {
   const supabase = createClient()
   const page = Math.max(1, filters.page || 1)
-  const limit = Math.max(1, filters.limit || 16)
+  const limit = Math.max(1, filters.limit || 24)
   const offset = (page - 1) * limit
 
   let query = supabase
     .from('tbl_item')
     .select('kodeitem, namaitem, jenis, merek, satuan, hargajual1, hargapokok, stok, keterangan, statusjual, tbl_itemjenis(ketjenis), tbl_itemmerek(ketmerek)', { count: 'exact' })
     .eq('statusjual', 'Y')
-    .gt('hargajual1', 0)
 
-  // Filter search
+  // Cerdas multi-word search: jika pencarian "abc kopi", cocokkan item yang mengandung "abc" DAN "kopi"
   if (filters.search && filters.search.trim()) {
-    const term = filters.search.trim()
-    query = query.or(`namaitem.ilike.%${term}%,kodeitem.ilike.%${term}%`)
+    const rawTerm = filters.search.trim()
+    const words = rawTerm.split(/\s+/).filter(w => w.length > 0)
+
+    if (words.length === 1) {
+      const term = words[0]
+      query = query.or(`namaitem.ilike.%${term}%,kodeitem.ilike.%${term}%`)
+    } else {
+      // Untuk multi kata: setiap kata harus ada di namaitem (ilike berantai)
+      words.forEach((word) => {
+        query = query.ilike('namaitem', `%${word}%`)
+      })
+    }
   }
 
   // Filter category
@@ -174,6 +193,160 @@ export async function getProducts(filters: ProductFilters = {}): Promise<Product
 }
 
 /**
+ * Mengambil rekomendasi auto-suggest saat pembeli mengetik di search bar
+ */
+export async function getSearchSuggestions(keyword: string): Promise<string[]> {
+  if (!keyword || keyword.trim().length < 2) return []
+  const supabase = createClient()
+  const term = keyword.trim()
+
+  const { data } = await supabase
+    .from('tbl_item')
+    .select('namaitem')
+    .eq('statusjual', 'Y')
+    .ilike('namaitem', `%${term}%`)
+    .limit(8)
+
+  if (!data) return []
+
+  const suggestions: string[] = []
+  const seen = new Set<string>()
+
+  data.forEach((item) => {
+    if (item.namaitem && !seen.has(item.namaitem)) {
+      seen.add(item.namaitem)
+      suggestions.push(item.namaitem)
+    }
+  })
+
+  return suggestions
+}
+
+/**
+ * Ambil daftar satuan jual untuk suatu produk (PCS, KRTN, DUS, RENCENG, BALL, dll)
+ * Menggabungkan data dari tbl_item, tbl_itemhj, dan produk saudara jika ada
+ */
+export async function getProductUnitOptions(
+  kodeitem: string,
+  namaitem: string,
+  defaultSatuan: string,
+  defaultHarga: number
+): Promise<ProductUnitOption[]> {
+  const supabase = createClient()
+  const unitsMap = new Map<string, ProductUnitOption>()
+
+  // 1. Masukkan satuan bawaan dari tbl_item
+  const normDefSat = (defaultSatuan || 'PCS').toUpperCase()
+  unitsMap.set(normDefSat, {
+    satuan: normDefSat,
+    hargajual: defaultHarga,
+    isDefault: true,
+    kodeitem: kodeitem,
+    label: normDefSat === 'PCS' ? 'PCS (Satuan)' : normDefSat,
+  })
+
+  // 2. Ambil semua satuan dan harga dari tbl_itemhj
+  const { data: hjData } = await supabase
+    .from('tbl_itemhj')
+    .select('satuan, hargajual, tipehj, level')
+    .eq('kodeitem', kodeitem)
+    .gt('hargajual', 0)
+
+  if (hjData && hjData.length > 0) {
+    hjData.forEach((row) => {
+      if (row.satuan && row.hargajual) {
+        const satUpper = row.satuan.toUpperCase().trim()
+        const price = Number(row.hargajual)
+        
+        if (!unitsMap.has(satUpper) || (unitsMap.get(satUpper)?.hargajual || 0) < price) {
+          let label = satUpper
+          if (satUpper === 'KRTN' || satUpper === 'KARTON' || satUpper === 'CTN') {
+            label = 'KARTON / DUS'
+          } else if (satUpper === 'RCG' || satUpper === 'RENCENG') {
+            label = 'RENCENG'
+          } else if (satUpper === 'BALL' || satUpper === 'BAL') {
+            label = 'BALL'
+          } else if (satUpper === 'PAK') {
+            label = 'PAK'
+          }
+
+          unitsMap.set(satUpper, {
+            satuan: satUpper,
+            hargajual: price,
+            label,
+            kodeitem: kodeitem,
+            isDefault: satUpper === normDefSat,
+          })
+        }
+      }
+    })
+  }
+
+  // 3. Cari kemungkinan produk saudara di tbl_item (misal varian RCG, DUS, KRTN yang terdaftar terpisah)
+  // Ambil kata kunci utama dari nama produk (3 kata pertama)
+  const words = (namaitem || '').replace(/[\(\)\/\-]/g, ' ').split(/\s+/).filter(w => w.length > 2)
+  if (words.length >= 2) {
+    const prefix1 = words[0]
+    const prefix2 = words[1]
+    const { data: siblings } = await supabase
+      .from('tbl_item')
+      .select('kodeitem, namaitem, satuan, hargajual1')
+      .ilike('namaitem', `%${prefix1}%`)
+      .ilike('namaitem', `%${prefix2}%`)
+      .neq('kodeitem', kodeitem)
+      .gt('hargajual1', 0)
+      .limit(6)
+
+    if (siblings && siblings.length > 0) {
+      siblings.forEach((sib) => {
+        const sibSat = (sib.satuan || '').toUpperCase().trim()
+        const sibNameUpper = (sib.namaitem || '').toUpperCase()
+        
+        let detectedUnit = sibSat
+        if (sibNameUpper.includes('KARTON') || sibNameUpper.includes('KRTN') || sibNameUpper.includes('DUS')) {
+          detectedUnit = 'KRTN'
+        } else if (sibNameUpper.includes('RENCENG') || sibNameUpper.includes('RCG')) {
+          detectedUnit = 'RENCENG'
+        } else if (sibNameUpper.includes('BALL') || sibNameUpper.includes('BAL')) {
+          detectedUnit = 'BALL'
+        }
+
+        if (detectedUnit && !unitsMap.has(detectedUnit) && sib.hargajual1) {
+          unitsMap.set(detectedUnit, {
+            satuan: detectedUnit,
+            hargajual: Number(sib.hargajual1),
+            label: detectedUnit,
+            kodeitem: sib.kodeitem,
+            isDefault: false,
+          })
+        }
+      })
+    }
+  }
+
+  // Konversi ke array dan urutkan: PCS -> RENCENG -> PAK -> KRTN / DUS -> BALL
+  const orderPriority: Record<string, number> = {
+    PCS: 1,
+    RCG: 2,
+    RENCENG: 2,
+    PAK: 3,
+    DUS: 4,
+    KRTN: 4,
+    KARTON: 4,
+    CTN: 4,
+    BALL: 5,
+    BAL: 5,
+  }
+
+  return Array.from(unitsMap.values()).sort((a, b) => {
+    const pA = orderPriority[a.satuan] || 99
+    const pB = orderPriority[b.satuan] || 99
+    if (pA !== pB) return pA - pB
+    return a.hargajual - b.hargajual
+  })
+}
+
+/**
  * Fetch featured products for the homepage
  */
 export async function getFeaturedProducts(limit = 8): Promise<ProductItem[]> {
@@ -195,9 +368,13 @@ export async function getFeaturedProducts(limit = 8): Promise<ProductItem[]> {
 }
 
 /**
- * Fetch a single product by its item code (kodeitem)
+ * Fetch a single product by its item code (kodeitem) with unit options
  */
-export async function getProductByCode(kodeitem: string): Promise<{ product: ProductItem | null; stockLocations: Tables<'tbl_itemstok'>[] }> {
+export async function getProductByCode(kodeitem: string): Promise<{
+  product: ProductItem | null
+  stockLocations: Tables<'tbl_itemstok'>[]
+  unitOptions: ProductUnitOption[]
+}> {
   const supabase = createClient()
   
   const { data: itemData, error } = await supabase
@@ -207,7 +384,7 @@ export async function getProductByCode(kodeitem: string): Promise<{ product: Pro
     .single()
 
   if (error || !itemData) {
-    return { product: null, stockLocations: [] }
+    return { product: null, stockLocations: [], unitOptions: [] }
   }
 
   const { data: stockData } = await supabase
@@ -215,8 +392,17 @@ export async function getProductByCode(kodeitem: string): Promise<{ product: Pro
     .select('*')
     .eq('kodeitem', kodeitem)
 
+  const product = transformProduct(itemData)
+  const unitOptions = await getProductUnitOptions(
+    product.kodeitem,
+    product.namaitem,
+    product.satuan || 'PCS',
+    product.hargajual1
+  )
+
   return {
-    product: transformProduct(itemData),
+    product,
     stockLocations: stockData || [],
+    unitOptions,
   }
 }

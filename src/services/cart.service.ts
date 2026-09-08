@@ -89,67 +89,69 @@ export async function getCartDetails(): Promise<CartLineItem[]> {
 /**
  * Add item to cart
  */
-export async function addToCart(product: ProductItem, quantity = 1): Promise<void> {
+export async function addToCart(
+  product: ProductItem,
+  quantity = 1,
+  customSatuan?: string,
+  customPrice?: number
+): Promise<{ success: boolean; error?: string; requireLogin?: boolean }> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const satuan = product.satuan || 'PCS'
+  const satuan = customSatuan || product.satuan || 'PCS'
 
-  if (user) {
-    // Validasi role: admin & owner dilarang menambah ke keranjang
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .maybeSingle()
-
-    if (profile?.role === 'admin' || profile?.role === 'owner') {
-      alert('Akun Admin / Owner hanya untuk pengelolaan toko dan tidak dapat memesan barang.')
-      return
+  if (!user) {
+    return {
+      success: false,
+      requireLogin: true,
+      error: 'Silakan masuk (login) terlebih dahulu untuk mulai berbelanja.',
     }
+  }
 
-    // Check if already in cart
-    const { data: existing } = await supabase
+  // Validasi role: admin & owner dilarang menambah ke keranjang
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (profile?.role === 'admin' || profile?.role === 'owner') {
+    return {
+      success: false,
+      error: 'Akun Admin / Owner hanya untuk pengelolaan toko dan tidak dapat memesan barang.',
+    }
+  }
+
+  // Check if already in cart with same satuan
+  const { data: existing } = await supabase
+    .from('cart_items')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('kodeitem', product.kodeitem)
+    .eq('satuan', satuan)
+    .maybeSingle()
+
+  if (existing) {
+    await supabase
       .from('cart_items')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('kodeitem', product.kodeitem)
-      .maybeSingle()
-
-    if (existing) {
-      await supabase
-        .from('cart_items')
-        .update({
-          jumlah: Number(existing.jumlah) + quantity,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', existing.id)
-    } else {
-      await supabase.from('cart_items').insert({
-        user_id: user.id,
-        kodeitem: product.kodeitem,
-        satuan,
-        jumlah: quantity,
+      .update({
+        jumlah: Number(existing.jumlah) + quantity,
+        updated_at: new Date().toISOString(),
       })
-    }
+      .eq('id', existing.id)
   } else {
-    // Local storage for guests
-    const items = getLocalCart()
-    const index = items.findIndex((i) => i.kodeitem === product.kodeitem)
-    if (index >= 0) {
-      items[index].quantity += quantity
-    } else {
-      items.push({
-        kodeitem: product.kodeitem,
-        quantity,
-        satuan,
-      })
-    }
-    saveLocalCart(items)
+    await supabase.from('cart_items').insert({
+      user_id: user.id,
+      kodeitem: product.kodeitem,
+      satuan,
+      jumlah: quantity,
+    })
   }
 
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new Event('cart-updated'))
   }
+
+  return { success: true }
 }
 
 /**

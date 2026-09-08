@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: ProductDetailPageProps) {
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { id } = await params
   const decodedId = decodeURIComponent(id)
-  const { product, stockLocations } = await getProductByCode(decodedId)
+  const { product, stockLocations, unitOptions } = await getProductByCode(decodedId)
 
   if (!product) {
     notFound()
@@ -62,11 +62,6 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               alt={product.namaitem}
               className="h-full w-full object-cover object-center"
             />
-            {product.merek_nama && (
-              <span className="absolute top-4 left-4 rounded-full bg-white/90 backdrop-blur-xs px-3 py-1 text-xs font-bold uppercase tracking-wider text-gray-900 shadow-sm">
-                {product.merek_nama}
-              </span>
-            )}
           </div>
         </div>
 
@@ -144,8 +139,8 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             )}
           </div>
 
-          {/* Interactive Actions (Quantity & Cart) */}
-          <ProductDetailActions product={product} />
+          {/* Interactive Actions (Unit Selector, Quantity & Cart) */}
+          <ProductDetailActions product={product} unitOptions={unitOptions} />
 
           {/* Feature Assurances */}
           <div className="grid grid-cols-3 gap-3 pt-4 border-t border-gray-100 text-center text-xs text-gray-500">

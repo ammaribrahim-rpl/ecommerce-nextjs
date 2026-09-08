@@ -1,9 +1,10 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { Filter, RotateCcw } from 'lucide-react'
 import type { CategoryItem, BrandItem } from '@/services/categories.service'
+import { createClient } from '@/lib/supabase/client'
 
 interface ProductFilterProps {
   categories: CategoryItem[]
@@ -14,6 +15,23 @@ export default function ProductFilter({ categories, brands }: ProductFilterProps
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const [userRole, setUserRole] = useState<string | null>(null)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (data?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .maybeSingle()
+        setUserRole(profile?.role || 'buyer')
+      }
+    })
+  }, [])
+
+  const isInternal = userRole === 'admin' || userRole === 'owner'
 
   const currentJenis = searchParams.get('jenis') || ''
   const currentMerek = searchParams.get('merek') || ''
@@ -35,7 +53,7 @@ export default function ProductFilter({ categories, brands }: ProductFilterProps
     router.push(pathname)
   }
 
-  const hasActiveFilters = currentJenis || currentMerek || currentSearch || currentSort !== 'newest'
+  const hasActiveFilters = currentJenis || (isInternal && currentMerek) || currentSearch || currentSort !== 'newest'
 
   return (
     <div className="rounded-2xl border border-gray-200/90 bg-white p-5 shadow-xs">
@@ -47,7 +65,7 @@ export default function ProductFilter({ categories, brands }: ProductFilterProps
         {hasActiveFilters && (
           <button
             onClick={handleReset}
-            className="flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-700"
+            className="flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-700 cursor-pointer"
           >
             <RotateCcw className="h-3 w-3" />
             Reset
@@ -76,7 +94,7 @@ export default function ProductFilter({ categories, brands }: ProductFilterProps
         {/* Category */}
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">
-            Kategori
+            Kategori Produk
           </label>
           <select
             value={currentJenis}
@@ -92,24 +110,28 @@ export default function ProductFilter({ categories, brands }: ProductFilterProps
           </select>
         </div>
 
-        {/* Brand */}
-        <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">
-            Merek Brand
-          </label>
-          <select
-            value={currentMerek}
-            onChange={(e) => handleFilterChange('merek', e.target.value)}
-            className="w-full rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-2 text-xs text-gray-800 focus:border-emerald-500 focus:bg-white focus:outline-none"
-          >
-            <option value="">Semua Merek</option>
-            {brands.map((b) => (
-              <option key={b.code} value={b.code}>
-                {b.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* Brand: HANYA DITAMPILKAN UNTUK ADMIN DAN OWNER */}
+        {isInternal && (
+          <div className="pt-2 border-t border-gray-100">
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-amber-700">
+                Filter Merek (Admin & Owner)
+              </label>
+            </div>
+            <select
+              value={currentMerek}
+              onChange={(e) => handleFilterChange('merek', e.target.value)}
+              className="w-full rounded-xl border border-amber-200 bg-amber-50/30 px-3 py-2 text-xs text-gray-800 focus:border-amber-500 focus:bg-white focus:outline-none"
+            >
+              <option value="">Semua Merek</option>
+              {brands.map((b) => (
+                <option key={b.code} value={b.code}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
     </div>
   )
