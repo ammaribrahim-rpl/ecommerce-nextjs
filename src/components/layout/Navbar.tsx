@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ShoppingBag, Search, User, Menu, X, ShoppingCart } from 'lucide-react'
+import { ShoppingBag, Search, User, Menu, X, ShoppingCart, Crown, Settings, ShieldCheck } from 'lucide-react'
 import { getLocalCart } from '@/services/cart.service'
 import { createClient } from '@/lib/supabase/client'
 
@@ -30,17 +30,24 @@ export default function Navbar() {
   const searchParams = useSearchParams()
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '')
   const cartCount = React.useSyncExternalStore(subscribeToCart, getCartSnapshot, getCartServerSnapshot)
-  const [user, setUser] = useState<{ email?: string; name?: string } | null>(null)
+  const [user, setUser] = useState<{ email?: string; name?: string; role?: string } | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
-    // Check auth user
+    // Check auth user and role
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       if (data?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('nama, role')
+          .eq('id', data.user.id)
+          .maybeSingle()
+
         setUser({
           email: data.user.email,
-          name: data.user.user_metadata?.nama || data.user.email?.split('@')[0],
+          name: profile?.nama || data.user.user_metadata?.nama || data.user.email?.split('@')[0],
+          role: profile?.role || 'buyer',
         })
       }
     })
@@ -108,19 +115,33 @@ export default function Navbar() {
             Semua Produk
           </Link>
 
-          {/* Cart Button */}
-          <Link
-            href="/cart"
-            className="relative flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50/80 px-3.5 py-2 text-sm font-medium text-gray-700 transition-all hover:border-emerald-500 hover:bg-emerald-50/30 hover:text-emerald-700"
-          >
-            <ShoppingCart className="h-4 w-4 text-emerald-600" />
-            <span className="hidden sm:inline">Keranjang</span>
-            {cartCount > 0 && (
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-600 px-1.5 text-[11px] font-bold text-white shadow-xs">
-                {cartCount > 99 ? '99+' : cartCount}
-              </span>
-            )}
-          </Link>
+          {/* Admin / Owner Dashboard Button OR Cart Button */}
+          {user?.role === 'admin' || user?.role === 'owner' ? (
+            <Link
+              href="/admin"
+              className="relative flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50/90 px-3.5 py-2 text-xs font-bold text-amber-800 transition-all hover:bg-amber-100 hover:border-amber-300"
+            >
+              {user.role === 'owner' ? (
+                <Crown className="h-4 w-4 text-amber-600" />
+              ) : (
+                <ShieldCheck className="h-4 w-4 text-blue-600" />
+              )}
+              <span>Dashboard Admin</span>
+            </Link>
+          ) : (
+            <Link
+              href="/cart"
+              className="relative flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50/80 px-3.5 py-2 text-sm font-medium text-gray-700 transition-all hover:border-emerald-500 hover:bg-emerald-50/30 hover:text-emerald-700"
+            >
+              <ShoppingCart className="h-4 w-4 text-emerald-600" />
+              <span className="hidden sm:inline">Keranjang</span>
+              {cartCount > 0 && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-600 px-1.5 text-[11px] font-bold text-white shadow-xs">
+                  {cartCount > 99 ? '99+' : cartCount}
+                </span>
+              )}
+            </Link>
+          )}
 
           {/* User Account / Login */}
           {user ? (
@@ -206,6 +227,16 @@ export default function Navbar() {
             </Link>
             {user ? (
               <>
+                {(user.role === 'admin' || user.role === 'owner') && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="rounded-lg bg-amber-50 px-3 py-2 text-sm font-bold text-amber-900 hover:bg-amber-100 flex items-center gap-2"
+                  >
+                    <Crown className="h-4 w-4 text-amber-600" />
+                    <span>Dashboard Admin</span>
+                  </Link>
+                )}
                 <Link
                   href="/profile"
                   onClick={() => setMobileMenuOpen(false)}

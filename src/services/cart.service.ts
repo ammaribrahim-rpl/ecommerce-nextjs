@@ -95,6 +95,18 @@ export async function addToCart(product: ProductItem, quantity = 1): Promise<voi
   const satuan = product.satuan || 'PCS'
 
   if (user) {
+    // Validasi role: admin & owner dilarang menambah ke keranjang
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (profile?.role === 'admin' || profile?.role === 'owner') {
+      alert('Akun Admin / Owner hanya untuk pengelolaan toko dan tidak dapat memesan barang.')
+      return
+    }
+
     // Check if already in cart
     const { data: existing } = await supabase
       .from('cart_items')

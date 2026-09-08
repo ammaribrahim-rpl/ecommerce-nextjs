@@ -80,9 +80,15 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
+  // Redirect /owner to /admin
+  if (pathname === '/owner' || pathname.startsWith('/owner/')) {
+    return NextResponse.redirect(new URL('/admin', request.url))
+  }
+
   // Redirect authenticated users away from auth pages
   if (user && (pathname === '/auth/login' || pathname === '/auth/register')) {
-    return NextResponse.redirect(new URL('/profile', request.url))
+    const redirectTo = request.nextUrl.searchParams.get('redirectTo') || '/profile'
+    return NextResponse.redirect(new URL(redirectTo, request.url))
   }
 
   return supabaseResponse

@@ -7,10 +7,14 @@ import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, ShieldCheck } from 'lucid
 import { getCartDetails, updateCartQuantity, removeFromCart, type CartLineItem } from '@/services/cart.service'
 import { formatRupiah } from '@/lib/utils/format'
 
+import { createClient } from '@/lib/supabase/client'
+import { Crown, ShieldAlert, Settings } from 'lucide-react'
+
 export default function CartPage() {
   const router = useRouter()
   const [items, setItems] = useState<CartLineItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [userRole, setUserRole] = useState<string | null>(null)
 
   const refreshItems = React.useCallback(async () => {
     const cartItems = await getCartDetails()
@@ -19,6 +23,19 @@ export default function CartPage() {
 
   useEffect(() => {
     let isMounted = true
+    const supabase = createClient()
+    
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (data?.user && isMounted) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .maybeSingle()
+        setUserRole(profile?.role || 'buyer')
+      }
+    })
+
     getCartDetails().then((cartItems) => {
       if (isMounted) {
         setItems(cartItems)
@@ -55,6 +72,38 @@ export default function CartPage() {
       <div className="mx-auto max-w-7xl px-4 py-16 text-center">
         <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
         <p className="mt-3 text-sm text-gray-500">Memuat keranjang belanja...</p>
+      </div>
+    )
+  }
+
+  // Jika akun adalah Admin atau Owner
+  if (userRole === 'admin' || userRole === 'owner') {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-20 text-center animate-fade-up">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-amber-100 text-amber-600 shadow-sm mb-6">
+          {userRole === 'owner' ? <Crown className="h-10 w-10" /> : <ShieldAlert className="h-10 w-10" />}
+        </div>
+        <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+          Akun {userRole === 'owner' ? 'Owner / Superadmin' : 'Admin Toko'}
+        </h2>
+        <p className="mt-3 text-sm text-slate-600 leading-relaxed max-w-md mx-auto">
+          Akun pengelola internal toko tidak dapat memesan barang. Fitur keranjang dan pembuatan pesanan hanya diperuntukkan bagi akun Pelanggan / Pembeli.
+        </p>
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <Link
+            href="/admin"
+            className="flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white shadow-md hover:bg-slate-800 transition-all"
+          >
+            <Settings className="h-4 w-4" />
+            <span>Dashboard Admin</span>
+          </Link>
+          <Link
+            href="/products"
+            className="flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-bold text-slate-700 hover:bg-gray-50 transition-all"
+          >
+            <span>Katalog Produk</span>
+          </Link>
+        </div>
       </div>
     )
   }

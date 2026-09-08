@@ -36,6 +36,7 @@ export const metadata: Metadata = {
 import { Suspense } from 'react'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import CustomerChatWidget from '@/components/chat/CustomerChatWidget'
 
 export default function RootLayout({
   children,
@@ -53,6 +54,7 @@ export default function RootLayout({
         </Suspense>
         <main className="flex-1">{children}</main>
         <Footer />
+        <CustomerChatWidget />
       </body>
     </html>
   )

@@ -15,7 +15,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [user, setUser] = useState<{ id: string; email?: string; nama?: string; telepon?: string } | null>(null)
+  const [user, setUser] = useState<{ id: string; email?: string; nama?: string; telepon?: string; role?: string } | null>(null)
 
   // Form Fields
   const [namaPenerima, setNamaPenerima] = useState('')
@@ -42,6 +42,7 @@ export default function CheckoutPage() {
           email: authUser.email,
           nama: profile?.nama || '',
           telepon: profile?.telepon || '',
+          role: profile?.role || 'buyer',
         })
 
         if (profile?.nama) setNamaPenerima(profile.nama)
@@ -59,6 +60,46 @@ export default function CheckoutPage() {
   const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0)
   const ongkir = items.length > 0 ? 15000 : 0
   const total = subtotal + ongkir
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-16 text-center">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent" />
+        <p className="mt-3 text-sm text-gray-500">Memuat halaman pembayaran...</p>
+      </div>
+    )
+  }
+
+  // Jika akun adalah Admin atau Owner
+  if (user?.role === 'admin' || user?.role === 'owner') {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-20 text-center animate-fade-up">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-amber-100 text-amber-600 shadow-sm mb-6">
+          <AlertCircle className="h-10 w-10" />
+        </div>
+        <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+          Pemesanan Tidak Diizinkan untuk {user.role === 'owner' ? 'Owner' : 'Admin'}
+        </h2>
+        <p className="mt-3 text-sm text-slate-600 leading-relaxed max-w-md mx-auto">
+          Akun internal toko hanya digunakan untuk keperluan administratif dan pemantauan toko. Silakan gunakan akun Pembeli jika ingin melakukan checkout.
+        </p>
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <Link
+            href="/admin"
+            className="flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white shadow-md hover:bg-slate-800 transition-all"
+          >
+            <span>Buka Dashboard Admin</span>
+          </Link>
+          <Link
+            href="/profile"
+            className="flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-bold text-slate-700 hover:bg-gray-50 transition-all"
+          >
+            <span>Halaman Profil</span>
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault()

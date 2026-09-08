@@ -29,6 +29,20 @@ export async function createOrder(payload: CheckoutPayload): Promise<{ success: 
     return { success: false, error: 'Silakan login terlebih dahulu untuk menyelesaikan pesanan.' }
   }
 
+  // Validasi Role: Admin & Owner dilarang memesan barang
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (profile?.role === 'admin' || profile?.role === 'owner') {
+    return {
+      success: false,
+      error: 'Akun Admin dan Owner tidak diizinkan melakukan pemesanan barang. Fitur pemesanan khusus untuk akun Pembeli.',
+    }
+  }
+
   if (!payload.items || payload.items.length === 0) {
     return { success: false, error: 'Keranjang belanja masih kosong.' }
   }
