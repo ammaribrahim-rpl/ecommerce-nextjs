@@ -24,16 +24,19 @@ function LoginForm() {
       const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
 
       if (authError) {
-        setError(authError.message === 'Invalid login credentials'
-          ? 'Email atau kata sandi salah. Silakan coba lagi.'
-          : authError.message)
+        if (authError.message === 'Invalid login credentials') {
+          setError('Email atau kata sandi salah. Silakan periksa kembali.')
+        } else if (authError.message.toLowerCase().includes('rate limit')) {
+          setError('Batas percobaan login terlampaui (rate limit dari Supabase). Tunggu beberapa saat (sekitar 5-10 menit) lalu coba kembali.')
+        } else {
+          setError(authError.message)
+        }
         return
       }
 
       if (data.user) {
         const redirectTo = searchParams.get('redirectTo') || '/profile'
-        router.push(redirectTo)
-        router.refresh()
+        window.location.href = redirectTo
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Terjadi kesalahan saat masuk.'

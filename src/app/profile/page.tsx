@@ -96,14 +96,14 @@ export default async function ProfilePage() {
             Kelola informasi akun dan lihat riwayat pesanan Anda
           </p>
         </div>
-        <form action="/auth/signout" method="POST">
-          <Link
-            href="/auth/logout"
-            className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-100 hover:border-red-300 transition-all"
+        <form action="/auth/logout" method="POST">
+          <button
+            type="submit"
+            className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-100 hover:border-red-300 transition-all cursor-pointer"
           >
             <LogOut className="h-3.5 w-3.5" />
             Keluar
-          </Link>
+          </button>
         </form>
       </div>
 

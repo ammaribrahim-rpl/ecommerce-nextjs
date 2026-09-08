@@ -251,12 +251,15 @@ export default function Navbar() {
                 >
                   Pesanan Saya
                 </Link>
-                <Link
-                  href="/auth/logout"
-                  className="rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
-                >
-                  Keluar
-                </Link>
+                <form action="/auth/logout" method="POST" className="w-full">
+                  <button
+                    type="submit"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full text-left rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 cursor-pointer"
+                  >
+                    Keluar
+                  </button>
+                </form>
               </>
             ) : (
               <Link

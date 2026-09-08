@@ -3,21 +3,17 @@ import { createServerClient } from '@supabase/ssr'
 import type { Database } from '@/types/database'
 
 /**
- * Next.js Middleware
+ * Next.js Middleware / Proxy
  *
  * Responsibilities:
  * 1. Refresh Supabase auth session on every request (keep JWT fresh)
- * 2. Protect authenticated routes — redirect unauthenticated users to /login
- * 3. Protect role-gated routes (/admin, /owner) — checked server-side
- *
- * NOTE: Role checks here are a UX guard only (fast redirect).
- * True authorization is enforced by Supabase RLS + server-side checks.
+ * 2. Protect authenticated routes — redirect unauthenticated users to /auth/login
+ * 3. Protect role-gated routes (/admin, /owner)
  */
 
 const BUYER_ROUTES = ['/cart', '/checkout', '/orders', '/profile', '/chat']
 const ADMIN_ROUTES = ['/admin']
 const OWNER_ROUTES = ['/owner']
-
 
 function requiresAuth(pathname: string): boolean {
   return (
@@ -36,7 +32,7 @@ function requiresAuth(pathname: string): boolean {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Allow static files and Next.js internals
+  // Allow static files, Next.js internals, and images
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api/') ||
@@ -73,26 +69,38 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // Helper function: ensure cookies are preserved on redirect
+  const redirectWithCookies = (url: URL | string) => {
+    const redirectResponse = NextResponse.redirect(url)
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value, cookie)
+    })
+    return redirectResponse
+  }
+
   // Redirect unauthenticated users away from protected routes
   if (requiresAuth(pathname) && !user) {
     const loginUrl = new URL('/auth/login', request.url)
     loginUrl.searchParams.set('redirectTo', pathname)
-    return NextResponse.redirect(loginUrl)
+    return redirectWithCookies(loginUrl)
   }
 
   // Redirect /owner to /admin
   if (pathname === '/owner' || pathname.startsWith('/owner/')) {
-    return NextResponse.redirect(new URL('/admin', request.url))
+    return redirectWithCookies(new URL('/admin', request.url))
   }
 
   // Redirect authenticated users away from auth pages
   if (user && (pathname === '/auth/login' || pathname === '/auth/register')) {
     const redirectTo = request.nextUrl.searchParams.get('redirectTo') || '/profile'
-    return NextResponse.redirect(new URL(redirectTo, request.url))
+    return redirectWithCookies(new URL(redirectTo, request.url))
   }
 
   return supabaseResponse
 }
+
+export const defaultExport = proxy
+export default proxy
 
 export const config = {
   matcher: [
