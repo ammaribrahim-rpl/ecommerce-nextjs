@@ -19,11 +19,8 @@ import {
   LogOut,
   ShieldCheck,
   PackageCheck,
-  Twitter,
-  Facebook,
-  Youtube,
-  Instagram,
 } from 'lucide-react'
+import { FacebookIcon, TwitterIcon, InstagramIcon, YoutubeIcon } from '@/components/shared/SocialIcons'
 import CliconLogo from '@/components/shared/CliconLogo'
 import { getLocalCart } from '@/services/cart.service'
 import { getCategories, type CategoryItem } from '@/services/categories.service'
@@ -132,16 +129,16 @@ export default function Navbar() {
             <div className="flex items-center gap-3 text-white/80">
               <span className="text-white/70">Follow us:</span>
               <a href="#" aria-label="Twitter" className="hover:text-white transition-colors">
-                <Twitter className="h-3.5 w-3.5" />
+                <TwitterIcon className="h-3.5 w-3.5" />
               </a>
               <a href="#" aria-label="Facebook" className="hover:text-white transition-colors">
-                <Facebook className="h-3.5 w-3.5" />
+                <FacebookIcon className="h-3.5 w-3.5" />
               </a>
               <a href="#" aria-label="Instagram" className="hover:text-white transition-colors">
-                <Instagram className="h-3.5 w-3.5" />
+                <InstagramIcon className="h-3.5 w-3.5" />
               </a>
               <a href="#" aria-label="YouTube" className="hover:text-white transition-colors">
-                <Youtube className="h-3.5 w-3.5" />
+                <YoutubeIcon className="h-3.5 w-3.5" />
               </a>
             </div>
 

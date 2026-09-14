@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
-import { PhoneCall, Mail, MapPin, Facebook, Twitter, Instagram, Youtube } from 'lucide-react'
+import { PhoneCall, Mail, MapPin } from 'lucide-react'
+import { FacebookIcon, TwitterIcon, InstagramIcon, YoutubeIcon } from '@/components/shared/SocialIcons'
 
 const TOP_CATEGORIES = [
   { name: 'Susu & Minuman', href: '/products?jenis=MNM' },
@@ -68,10 +69,10 @@ export default function Footer() {
             {/* Social links */}
             <div className="flex items-center gap-3 pt-1">
               {[
-                { Icon: Facebook, href: '#', label: 'Facebook' },
-                { Icon: Twitter, href: '#', label: 'Twitter' },
-                { Icon: Instagram, href: '#', label: 'Instagram' },
-                { Icon: Youtube, href: '#', label: 'YouTube' },
+                { Icon: FacebookIcon, href: '#', label: 'Facebook' },
+                { Icon: TwitterIcon, href: '#', label: 'Twitter' },
+                { Icon: InstagramIcon, href: '#', label: 'Instagram' },
+                { Icon: YoutubeIcon, href: '#', label: 'YouTube' },
               ].map(({ Icon, href, label }) => (
                 <a
                   key={label}
