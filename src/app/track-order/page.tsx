@@ -64,15 +64,16 @@ export default function TrackOrderPage() {
           id,
           notransaksi,
           created_at,
-          status,
-          total,
+          status_order,
+          status_pengiriman,
+          total_akhir,
           nama_penerima,
           alamat_kirim,
           telepon_penerima,
           ecommerce_order_items (
-            namabarang,
-            qty,
-            hargasatuan,
+            namaitem,
+            jumlah,
+            harga_satuan,
             subtotal
           )
         `)
@@ -113,16 +114,22 @@ export default function TrackOrderPage() {
           )
         }
       } else {
+        const orderData = data as any
         setResult({
-          id: data.id,
-          notransaksi: data.notransaksi || data.id.slice(0, 8).toUpperCase(),
-          created_at: data.created_at,
-          status: data.status,
-          total: data.total || 0,
-          nama_penerima: data.nama_penerima,
-          alamat_kirim: data.alamat_kirim,
-          telepon_penerima: data.telepon_penerima,
-          items: data.ecommerce_order_items as any,
+          id: orderData.id,
+          notransaksi: orderData.notransaksi || orderData.id.slice(0, 8).toUpperCase(),
+          created_at: orderData.created_at || new Date().toISOString(),
+          status: orderData.status_pengiriman || orderData.status_order || 'pending',
+          total: orderData.total_akhir || 0,
+          nama_penerima: orderData.nama_penerima,
+          alamat_kirim: orderData.alamat_kirim,
+          telepon_penerima: orderData.telepon_penerima,
+          items: (orderData.ecommerce_order_items || []).map((it: any) => ({
+            namabarang: it.namaitem,
+            qty: it.jumlah,
+            hargasatuan: it.harga_satuan,
+            subtotal: it.subtotal,
+          })),
         })
       }
     } catch (err: any) {

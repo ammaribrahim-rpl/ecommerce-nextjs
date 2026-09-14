@@ -106,6 +106,8 @@ export default function CartPage() {
         </div>
       </div>
     )
+  }
+
   // Jika pengunjung adalah Tamu (Guest / Belum Login)
   if (!userRole) {
     return (
