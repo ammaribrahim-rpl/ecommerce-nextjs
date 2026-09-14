@@ -407,7 +407,7 @@ export default function Navbar() {
           {/* Desktop Nav Links */}
           <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-xs sm:text-sm font-medium text-[#5F6C72]">
             <Link
-              href="/orders"
+              href="/track-order"
               className="flex items-center gap-1.5 hover:text-[#FA8232] transition-colors"
             >
               <MapPin className="h-4 w-4" />
@@ -459,7 +459,7 @@ export default function Navbar() {
               Semua Produk
             </Link>
             <Link
-              href="/orders"
+              href="/track-order"
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-100"
             >

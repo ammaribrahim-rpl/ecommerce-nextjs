@@ -57,19 +57,21 @@ export default function ProductCard({ product, showDiscount, discountPercent, is
   return (
     <div className="group relative flex flex-col bg-white border border-[#E4E7E9] rounded-sm overflow-hidden transition-all duration-300 hover:shadow-[0_4px_20px_rgba(0,0,0,0.10)] hover:border-[#FA8232]/30">
       {/* ── Product Image Area ── */}
-      <Link
-        href={`/products/${product.kodeitem}`}
-        className="relative block aspect-square overflow-hidden bg-[#F2F4F5]"
-      >
-        <img
-          src={product.imageUrl}
-          alt={product.namaitem}
-          loading="lazy"
-          className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-        />
+      <div className="relative block aspect-square overflow-hidden bg-[#F2F4F5]">
+        <Link
+          href={`/products/${product.kodeitem}`}
+          className="block h-full w-full"
+        >
+          <img
+            src={product.imageUrl}
+            alt={product.namaitem}
+            loading="lazy"
+            className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+          />
+        </Link>
 
         {/* Top-left badges */}
-        <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5">
+        <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 pointer-events-none">
           {isHot && (
             <span className="inline-flex items-center justify-center bg-[#EE5858] text-white text-[10px] font-bold uppercase px-2 py-0.5 rounded-sm">
               HOT
@@ -84,7 +86,7 @@ export default function ProductCard({ product, showDiscount, discountPercent, is
 
         {/* Unit badge top-right */}
         {product.satuan && (
-          <span className="absolute top-2.5 right-2.5 bg-[#191C1F]/75 backdrop-blur-xs text-white text-[10px] font-semibold px-2 py-0.5 rounded-sm">
+          <span className="absolute top-2.5 right-2.5 bg-[#191C1F]/75 backdrop-blur-xs text-white text-[10px] font-semibold px-2 py-0.5 rounded-sm pointer-events-none">
             {product.satuan}
           </span>
         )}
@@ -106,7 +108,6 @@ export default function ProductCard({ product, showDiscount, discountPercent, is
 
           <Link
             href="/wishlist"
-            onClick={(e) => e.stopPropagation()}
             title="Wishlist"
             className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#191C1F] shadow hover:bg-[#FA8232] hover:text-white transition-all duration-200"
           >
@@ -115,14 +116,13 @@ export default function ProductCard({ product, showDiscount, discountPercent, is
 
           <Link
             href={`/products/${product.kodeitem}`}
-            onClick={(e) => e.stopPropagation()}
             title="Quick View"
             className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#191C1F] shadow hover:bg-[#FA8232] hover:text-white transition-all duration-200"
           >
             <Eye className="h-3.5 w-3.5" />
           </Link>
         </div>
-      </Link>
+      </div>
 
       {/* ── Content Area ── */}
       <div className="flex flex-1 flex-col p-4 gap-2">
