@@ -6,20 +6,57 @@
 ================================================================ */
 
 :root {
-  --background: #f8fafb;
-  --foreground: #0f172a;
-  --brand-50:  #ecfdf5;
-  --brand-100: #d1fae5;
-  --brand-500: #10b981;
-  --brand-600: #059669;
-  --brand-700: #047857;
+  --background: #ffffff;
+  --foreground: #191c1f;
+  --clicon-orange: #fa8232;
+  --clicon-orange-hover: #de732d;
+  --clicon-orange-light: #fff3eb;
+  --clicon-blue: #1b6392;
+  --clicon-blue-dark: #124b70;
+  --clicon-sky: #2da5f3;
+  --clicon-dark: #191c1f;
+  --clicon-gray-900: #191c1f;
+  --clicon-gray-800: #303639;
+  --clicon-gray-700: #475156;
+  --clicon-gray-600: #5f6c72;
+  --clicon-gray-500: #77878f;
+  --clicon-gray-400: #929fa5;
+  --clicon-gray-300: #adb7bc;
+  --clicon-gray-200: #c9cfd2;
+  --clicon-gray-100: #e4e7e9;
+  --clicon-gray-50: #f2f4f5;
+  --clicon-yellow: #ebc80c;
+  --clicon-yellow-light: #f3de6d;
+  --clicon-green: #2db224;
+  --clicon-red: #ee5858;
   --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.05);
-  --shadow-pop:  0 4px 24px -4px rgb(0 0 0 / 0.12), 0 2px 8px -2px rgb(0 0 0 / 0.06);
+  --shadow-pop: 0 8px 30px -4px rgb(0 0 0 / 0.12), 0 4px 12px -2px rgb(0 0 0 / 0.06);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-clicon-orange: #fa8232;
+  --color-clicon-orange-hover: #de732d;
+  --color-clicon-orange-light: #fff3eb;
+  --color-clicon-blue: #1b6392;
+  --color-clicon-blue-dark: #124b70;
+  --color-clicon-sky: #2da5f3;
+  --color-clicon-dark: #191c1f;
+  --color-clicon-gray-900: #191c1f;
+  --color-clicon-gray-800: #303639;
+  --color-clicon-gray-700: #475156;
+  --color-clicon-gray-600: #5f6c72;
+  --color-clicon-gray-500: #77878f;
+  --color-clicon-gray-400: #929fa5;
+  --color-clicon-gray-300: #adb7bc;
+  --color-clicon-gray-200: #c9cfd2;
+  --color-clicon-gray-100: #e4e7e9;
+  --color-clicon-gray-50: #f2f4f5;
+  --color-clicon-yellow: #ebc80c;
+  --color-clicon-yellow-light: #f3de6d;
+  --color-clicon-green: #2db224;
+  --color-clicon-red: #ee5858;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -45,8 +82,8 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
 /* ── Focus & selection ─────────────────────────────────────────── */
-:focus-visible { outline: 2px solid var(--brand-500); outline-offset: 2px; }
-::selection    { background: #a7f3d0; color: #064e3b; }
+:focus-visible { outline: 2px solid var(--clicon-orange); outline-offset: 2px; }
+::selection    { background: #ffe7d6; color: #fa8232; }
 
 img { display: block; max-width: 100%; }
 

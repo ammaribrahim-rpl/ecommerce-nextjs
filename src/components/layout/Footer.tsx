@@ -1,131 +1,166 @@
 import React from 'react'
 import Link from 'next/link'
-import { ShoppingBag, ShieldCheck, Truck, Headphones, RotateCcw } from 'lucide-react'
+import { PhoneCall, Mail, MapPin, Facebook, Twitter, Instagram, Youtube } from 'lucide-react'
+
+const TOP_CATEGORIES = [
+  { name: 'Susu & Minuman', href: '/products?jenis=MNM' },
+  { name: 'Popok & Bayi', href: '/products?jenis=POPOK' },
+  { name: 'Perlengkapan Anak', href: '/products?jenis=PLKPN' },
+  { name: 'Makanan & Biskuit', href: '/products?jenis=MKN' },
+  { name: 'Kesehatan & Obat', href: '/products?jenis=HEALTH' },
+  { name: 'Perawatan Kulit', href: '/products?jenis=SCINCARE' },
+]
+
+const QUICK_LINKS = [
+  { name: 'Beranda', href: '/' },
+  { name: 'Semua Produk', href: '/products' },
+  { name: 'Keranjang Belanja', href: '/cart' },
+  { name: 'Wishlist', href: '/wishlist' },
+  { name: 'Status Pesanan', href: '/orders' },
+  { name: 'Hubungi Kami', href: '/customer-support' },
+]
+
+const POPULAR_TAGS = [
+  'Susu Formula', 'Popok', 'MPASI', 'Vitamin Anak', 'Sabun Bayi',
+  'Perlengkapan Mandi', 'Skincare', 'Makanan Sehat',
+]
+
+const PAYMENT_METHODS = ['BCA Transfer', 'Mandiri', 'BRI', 'QRIS', 'COD']
 
 export default function Footer() {
   return (
-    <footer className="mt-auto border-t border-gray-200 bg-gray-50/50">
-      {/* Value Proposition Highlights */}
-      <div className="border-b border-gray-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
-                <Truck className="h-5 w-5" />
+    <footer className="w-full bg-[#191C1F] text-white mt-auto">
+      {/* Main Footer Content */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+          {/* Col 1: Company Info */}
+          <div className="lg:col-span-1 space-y-4">
+            {/* Logo */}
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-black tracking-tight text-white">
+                Karisma<span className="text-[#FA8232]">Store</span>
+              </span>
+            </div>
+            <p className="text-sm text-[#77878F] leading-relaxed">
+              Platform e-commerce terpercaya untuk kebutuhan ibu, bayi, dan keluarga. Produk asli, harga terjangkau, pengiriman cepat.
+            </p>
+
+            {/* Contact */}
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center gap-2.5 text-sm text-[#ADB7BC]">
+                <PhoneCall className="h-4 w-4 text-[#FA8232] shrink-0" />
+                <a href="tel:+6281234567890" className="hover:text-white transition-colors">
+                  +62 812-3456-7890
+                </a>
               </div>
-              <div>
-                <h4 className="text-xs font-bold text-gray-900">Pengiriman Cepat</h4>
-                <p className="text-xs text-gray-500">Layanan antar langsung terpercaya</p>
+              <div className="flex items-center gap-2.5 text-sm text-[#ADB7BC]">
+                <Mail className="h-4 w-4 text-[#FA8232] shrink-0" />
+                <a href="mailto:cs@karismastore.id" className="hover:text-white transition-colors">
+                  cs@karismastore.id
+                </a>
+              </div>
+              <div className="flex items-start gap-2.5 text-sm text-[#ADB7BC]">
+                <MapPin className="h-4 w-4 text-[#FA8232] shrink-0 mt-0.5" />
+                <span>Jl. Contoh No. 123, Kota Anda</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
-                <ShieldCheck className="h-5 w-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-gray-900">100% Produk Asli</h4>
-                <p className="text-xs text-gray-500">Langsung dari distributor resmi</p>
+            {/* Social links */}
+            <div className="flex items-center gap-3 pt-1">
+              {[
+                { Icon: Facebook, href: '#', label: 'Facebook' },
+                { Icon: Twitter, href: '#', label: 'Twitter' },
+                { Icon: Instagram, href: '#', label: 'Instagram' },
+                { Icon: Youtube, href: '#', label: 'YouTube' },
+              ].map(({ Icon, href, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  aria-label={label}
+                  className="flex h-8 w-8 items-center justify-center rounded-sm bg-[#303639] hover:bg-[#FA8232] text-[#ADB7BC] hover:text-white transition-all duration-200"
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Col 2: Top Categories */}
+          <div>
+            <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Top Kategori</h4>
+            <ul className="space-y-2.5">
+              {TOP_CATEGORIES.map((cat) => (
+                <li key={cat.name}>
+                  <Link
+                    href={cat.href}
+                    className="text-sm text-[#77878F] hover:text-[#FA8232] transition-colors flex items-center gap-1.5 group"
+                  >
+                    <span className="h-0.5 w-3 rounded-full bg-[#303639] group-hover:bg-[#FA8232] transition-colors" />
+                    {cat.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Col 3: Quick Links */}
+          <div>
+            <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Tautan Cepat</h4>
+            <ul className="space-y-2.5">
+              {QUICK_LINKS.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-[#77878F] hover:text-[#FA8232] transition-colors flex items-center gap-1.5 group"
+                  >
+                    <span className="h-0.5 w-3 rounded-full bg-[#303639] group-hover:bg-[#FA8232] transition-colors" />
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Col 4: Popular Tags + Download App */}
+          <div className="space-y-6">
+            <div>
+              <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Tag Populer</h4>
+              <div className="flex flex-wrap gap-2">
+                {POPULAR_TAGS.map((tag) => (
+                  <Link
+                    key={tag}
+                    href={`/products?search=${encodeURIComponent(tag)}`}
+                    className="rounded-sm border border-[#303639] bg-transparent px-2.5 py-1 text-xs text-[#77878F] hover:border-[#FA8232] hover:text-[#FA8232] transition-all duration-200"
+                  >
+                    {tag}
+                  </Link>
+                ))}
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
-                <RotateCcw className="h-5 w-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-gray-900">Garansi Kepuasan</h4>
-                <p className="text-xs text-gray-500">Jaminan barang tiba dengan aman</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
-                <Headphones className="h-5 w-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-gray-900">Bantuan Ramah</h4>
-                <p className="text-xs text-gray-500">Siap melayani kebutuhan Anda</p>
+            {/* Payment Methods */}
+            <div>
+              <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-3">Metode Pembayaran</h4>
+              <div className="flex flex-wrap gap-2">
+                {PAYMENT_METHODS.map((m) => (
+                  <span
+                    key={m}
+                    className="rounded-sm border border-[#303639] bg-[#303639] px-2.5 py-1 text-xs font-medium text-[#ADB7BC]"
+                  >
+                    {m}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Footer Links */}
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-          {/* Company Bio */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-white">
-                <ShoppingBag className="h-4 w-4" />
-              </div>
-              <span className="text-lg font-bold text-gray-900">
-                Karisma<span className="text-emerald-600">Store</span>
-              </span>
-            </div>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              Platform e-commerce resmi Karisma Store menyediakan ribuan produk kebutuhan keluarga, perlengkapan bayi, makanan, minuman, dan kebutuhan harian dengan harga bersaing.
-            </p>
-          </div>
-
-          {/* Navigasi */}
-          <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-900">Navigasi Toko</h4>
-            <ul className="mt-4 space-y-2.5 text-sm text-gray-600">
-              <li>
-                <Link href="/" className="hover:text-emerald-600 transition-colors">Beranda</Link>
-              </li>
-              <li>
-                <Link href="/products" className="hover:text-emerald-600 transition-colors">Semua Produk</Link>
-              </li>
-              <li>
-                <Link href="/cart" className="hover:text-emerald-600 transition-colors">Keranjang Belanja</Link>
-              </li>
-              <li>
-                <Link href="/orders" className="hover:text-emerald-600 transition-colors">Cek Status Pesanan</Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Kategori Populer */}
-          <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-900">Kategori Pilihan</h4>
-            <ul className="mt-4 space-y-2.5 text-sm text-gray-600">
-              <li>
-                <Link href="/products?jenis=MNM" className="hover:text-emerald-600 transition-colors">Susu & Minuman</Link>
-              </li>
-              <li>
-                <Link href="/products?jenis=POPOK" className="hover:text-emerald-600 transition-colors">Popok & Bayi</Link>
-              </li>
-              <li>
-                <Link href="/products?jenis=PLKPN" className="hover:text-emerald-600 transition-colors">Perlengkapan Anak</Link>
-              </li>
-              <li>
-                <Link href="/products?jenis=MKN" className="hover:text-emerald-600 transition-colors">Makanan & Biskuit</Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Metode Pembayaran */}
-          <div>
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-900">Metode Pembayaran</h4>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <span className="rounded-md border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-700">BCA Transfer</span>
-              <span className="rounded-md border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-700">Bank Mandiri</span>
-              <span className="rounded-md border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-700">BRI</span>
-              <span className="rounded-md border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-700">QRIS</span>
-              <span className="rounded-md border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-700">COD / Tunai</span>
-            </div>
-            <p className="mt-4 text-xs text-gray-500">
-              Transaksi aman dan diverifikasi secara langsung oleh tim Karisma Store.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-12 border-t border-gray-200 pt-6 text-center text-xs text-gray-500">
-          © {new Date().getFullYear()} Karisma Store. Hak Cipta Dilindungi. Didukung oleh Next.js, Supabase & Tailwind CSS.
+      {/* Bottom Bar */}
+      <div className="border-t border-[#303639]">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[#5F6C72]">
+          <p>© {new Date().getFullYear()} Karisma Store. Semua Hak Dilindungi.</p>
+          <p>Dibangun dengan ❤️ menggunakan Next.js & Supabase</p>
         </div>
       </div>
     </footer>

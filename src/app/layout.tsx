@@ -34,6 +34,7 @@ export const metadata: Metadata = {
 }
 
 import { Suspense } from 'react'
+import TopAnnouncementBar from '@/components/layout/TopAnnouncementBar'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import CustomerChatWidget from '@/components/chat/CustomerChatWidget'
@@ -48,8 +49,9 @@ export default function RootLayout({
       lang="id"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-gray-50/30 text-gray-900">
-        <Suspense fallback={<div className="h-16 w-full bg-white border-b border-gray-200" />}>
+      <body className="min-h-full flex flex-col bg-white text-[#191C1F]">
+        <TopAnnouncementBar />
+        <Suspense fallback={<div className="h-20 w-full bg-[#1B6392]" />}>
           <Navbar />
         </Suspense>
         <main className="flex-1">{children}</main>
