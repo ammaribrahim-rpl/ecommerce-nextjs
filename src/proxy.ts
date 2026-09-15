@@ -7,25 +7,19 @@ import type { Database } from '@/types/database'
  *
  * Responsibilities:
  * 1. Refresh Supabase auth session on every request (keep JWT fresh)
- * 2. Protect authenticated routes — redirect unauthenticated users to /auth/login
+ * 2. Protect ALL routes — redirect unauthenticated users to /auth/login
  * 3. Protect role-gated routes (/admin, /owner)
  */
 
-const BUYER_ROUTES = ['/cart', '/checkout', '/orders', '/profile', '/chat']
 const ADMIN_ROUTES = ['/admin']
 const OWNER_ROUTES = ['/owner']
 
-function requiresAuth(pathname: string): boolean {
-  return (
-    BUYER_ROUTES.some(
-      (route) => pathname === route || pathname.startsWith(`${route}/`)
-    ) ||
-    ADMIN_ROUTES.some(
-      (route) => pathname === route || pathname.startsWith(`${route}/`)
-    ) ||
-    OWNER_ROUTES.some(
-      (route) => pathname === route || pathname.startsWith(`${route}/`)
-    )
+/** Paths yang TIDAK memerlukan autentikasi */
+const PUBLIC_PATHS = ['/auth/login', '/auth/register', '/auth/logout']
+
+function isPublicPath(pathname: string): boolean {
+  return PUBLIC_PATHS.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`)
   )
 }
 
@@ -78,8 +72,8 @@ export async function proxy(request: NextRequest) {
     return redirectResponse
   }
 
-  // Redirect unauthenticated users away from protected routes
-  if (requiresAuth(pathname) && !user) {
+  // Redirect unauthenticated users away from ALL non-public routes
+  if (!user && !isPublicPath(pathname)) {
     const loginUrl = new URL('/auth/login', request.url)
     loginUrl.searchParams.set('redirectTo', pathname)
     return redirectWithCookies(loginUrl)
@@ -90,9 +84,9 @@ export async function proxy(request: NextRequest) {
     return redirectWithCookies(new URL('/admin', request.url))
   }
 
-  // Redirect authenticated users away from auth pages
-  if (user && (pathname === '/auth/login' || pathname === '/auth/register')) {
-    const redirectTo = request.nextUrl.searchParams.get('redirectTo') || '/profile'
+  // Redirect authenticated users away from auth pages → ke homepage
+  if (user && isPublicPath(pathname)) {
+    const redirectTo = request.nextUrl.searchParams.get('redirectTo') || '/'
     return redirectWithCookies(new URL(redirectTo, request.url))
   }
 

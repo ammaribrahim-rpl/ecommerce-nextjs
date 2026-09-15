@@ -3,8 +3,10 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowRight, X } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function TopAnnouncementBar() {
+  const { t } = useLanguage()
   const [visible, setVisible] = useState(true)
 
   useEffect(() => {
@@ -26,24 +28,24 @@ export default function TopAnnouncementBar() {
       <div className="mx-auto max-w-7xl flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm">
         {/* Left / Center Promo content */}
         <div className="flex items-center gap-3 sm:gap-4 flex-1 justify-center sm:justify-start lg:justify-center">
-          {/* Black Friday badge */}
+          {/* Badge */}
           <span className="inline-flex items-center justify-center bg-[#F3DE6D] text-[#191C1F] font-black text-xs px-2.5 py-1 rounded-xs uppercase tracking-wider transform -rotate-2 select-none">
-            Black Friday
+            {t('top.badge')}
           </span>
 
           <div className="flex items-center gap-1.5 font-medium text-gray-200">
-            <span>Up to</span>
+            <span>{t('top.upto')}</span>
             <span className="text-xl sm:text-2xl font-black text-[#EBC80C] leading-none">
               59%
             </span>
-            <span className="font-bold text-white uppercase">OFF</span>
+            <span className="font-bold text-white uppercase">{t('top.off')}</span>
           </div>
 
           <Link
             href="/products"
             className="inline-flex items-center gap-1.5 bg-[#EBC80C] hover:bg-[#d9b80b] text-[#191C1F] font-bold text-xs uppercase tracking-wider px-3.5 py-1.5 rounded-xs transition-colors shadow-xs ml-1"
           >
-            <span>SHOP NOW</span>
+            <span>{t('top.shop_now')}</span>
             <ArrowRight className="h-3.5 w-3.5 stroke-[2.5]" />
           </Link>
         </div>

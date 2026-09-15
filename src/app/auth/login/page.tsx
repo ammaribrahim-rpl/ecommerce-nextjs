@@ -42,7 +42,7 @@ function LoginForm() {
       }
 
       if (data.user) {
-        const redirectTo = searchParams.get('redirectTo') || '/profile'
+        const redirectTo = searchParams.get('redirectTo') || '/'
         window.location.href = redirectTo
       }
     } catch (err: unknown) {

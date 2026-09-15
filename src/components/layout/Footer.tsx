@@ -1,7 +1,10 @@
+'use client'
+
 import React from 'react'
 import Link from 'next/link'
 import { PhoneCall, Mail, MapPin } from 'lucide-react'
 import { FacebookIcon, TwitterIcon, InstagramIcon, YoutubeIcon } from '@/components/shared/SocialIcons'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const TOP_CATEGORIES = [
   { name: 'Susu & Minuman', href: '/products?jenis=MNM' },
@@ -13,12 +16,12 @@ const TOP_CATEGORIES = [
 ]
 
 const QUICK_LINKS = [
-  { name: 'Beranda', href: '/' },
-  { name: 'Semua Produk', href: '/products' },
-  { name: 'Keranjang Belanja', href: '/cart' },
-  { name: 'Wishlist', href: '/wishlist' },
-  { name: 'Status Pesanan', href: '/orders' },
-  { name: 'Hubungi Kami', href: '/customer-support' },
+  { nameKey: 'footer.home', defaultName: 'Beranda', href: '/' },
+  { nameKey: 'footer.all_products', defaultName: 'Semua Produk', href: '/products' },
+  { nameKey: 'footer.cart', defaultName: 'Keranjang Belanja', href: '/cart' },
+  { nameKey: 'footer.wishlist', defaultName: 'Wishlist', href: '/wishlist' },
+  { nameKey: 'footer.order_status', defaultName: 'Status Pesanan', href: '/track-order' },
+  { nameKey: 'footer.contact', defaultName: 'Hubungi Kami', href: '/customer-support' },
 ]
 
 const POPULAR_TAGS = [
@@ -29,6 +32,9 @@ const POPULAR_TAGS = [
 const PAYMENT_METHODS = ['BCA Transfer', 'Mandiri', 'BRI', 'QRIS', 'COD']
 
 export default function Footer() {
+  const { t } = useLanguage()
+  const year = new Date().getFullYear()
+
   return (
     <footer className="w-full bg-[#191C1F] text-white mt-auto">
       {/* Main Footer Content */}
@@ -43,7 +49,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-sm text-[#77878F] leading-relaxed">
-              Platform e-commerce terpercaya untuk kebutuhan ibu, bayi, dan keluarga. Produk asli, harga terjangkau, pengiriman cepat.
+              {t('footer.desc')}
             </p>
 
             {/* Contact */}
@@ -88,7 +94,7 @@ export default function Footer() {
 
           {/* Col 2: Top Categories */}
           <div>
-            <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Top Kategori</h4>
+            <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4">{t('footer.top_categories')}</h4>
             <ul className="space-y-2.5">
               {TOP_CATEGORIES.map((cat) => (
                 <li key={cat.name}>
@@ -106,16 +112,16 @@ export default function Footer() {
 
           {/* Col 3: Quick Links */}
           <div>
-            <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Tautan Cepat</h4>
+            <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4">{t('footer.quick_links')}</h4>
             <ul className="space-y-2.5">
               {QUICK_LINKS.map((link) => (
-                <li key={link.name}>
+                <li key={link.href}>
                   <Link
                     href={link.href}
                     className="text-sm text-[#77878F] hover:text-[#FA8232] transition-colors flex items-center gap-1.5 group"
                   >
                     <span className="h-0.5 w-3 rounded-full bg-[#303639] group-hover:bg-[#FA8232] transition-colors" />
-                    {link.name}
+                    {t(link.nameKey) || link.defaultName}
                   </Link>
                 </li>
               ))}
@@ -125,7 +131,7 @@ export default function Footer() {
           {/* Col 4: Popular Tags + Download App */}
           <div className="space-y-6">
             <div>
-              <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4">Tag Populer</h4>
+              <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-4">{t('footer.popular_tags')}</h4>
               <div className="flex flex-wrap gap-2">
                 {POPULAR_TAGS.map((tag) => (
                   <Link
@@ -141,7 +147,7 @@ export default function Footer() {
 
             {/* Payment Methods */}
             <div>
-              <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-3">Metode Pembayaran</h4>
+              <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-3">{t('footer.payment_methods')}</h4>
               <div className="flex flex-wrap gap-2">
                 {PAYMENT_METHODS.map((m) => (
                   <span
@@ -160,8 +166,8 @@ export default function Footer() {
       {/* Bottom Bar */}
       <div className="border-t border-[#303639]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[#5F6C72]">
-          <p>© {new Date().getFullYear()} Karisma Store. Semua Hak Dilindungi.</p>
-          <p>Dibangun dengan ❤️ menggunakan Next.js & Supabase</p>
+          <p>{t('footer.copyright', { year })}</p>
+          <p>Karisma Grosir & Retail</p>
         </div>
       </div>
     </footer>

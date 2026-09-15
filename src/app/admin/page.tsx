@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import AdminDashboardClient from '@/components/admin/AdminDashboardClient'
 
 export const metadata = {
-  title: 'Dashboard Admin & Owner - Karisma Store',
+  title: 'Dashboard Admin - Karisma Store',
   description: 'Kelola pesanan, katalog produk, dan layanan pelanggan Karisma Store.',
 }
 
@@ -28,7 +28,7 @@ export default async function AdminPage() {
   const role = profile?.role || 'buyer'
 
   if (role !== 'admin' && role !== 'owner') {
-    // User bukan admin/owner -> tolak akses dan arahkan ke profile
+    // User bukan admin/owner -> tolak akses
     redirect('/profile')
   }
 
