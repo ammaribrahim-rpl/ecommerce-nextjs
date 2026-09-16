@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { formatRupiah, formatDate } from '@/lib/utils/format'
 import { createClient } from '@/lib/supabase/client'
+import AdminCharts from './AdminCharts'
 import {
   getAllConversations,
   getConversationMessages,
@@ -439,23 +440,8 @@ export default function AdminDashboardClient({
                 ))}
               </div>
 
-              {/* Status distribution cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {[
-                  { label: 'Dipesan', count: orders.filter(o => o.status_order === 'ordered').length, color: 'bg-blue-500' },
-                  { label: 'Diproses', count: stats.processingOrders, color: 'bg-amber-500' },
-                  { label: 'Dikirim', count: stats.shippedOrders, color: 'bg-purple-500' },
-                  { label: 'Selesai', count: stats.deliveredOrders, color: 'bg-emerald-500' },
-                ].map(s => (
-                  <div key={s.label} className="rounded-xl bg-white p-4 shadow-sm border border-gray-100 flex items-center gap-3">
-                    <div className={`h-3 w-3 rounded-full ${s.color} shrink-0`} />
-                    <div>
-                      <p className="text-xs text-gray-500">{s.label}</p>
-                      <p className="text-lg font-black text-gray-900">{s.count}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              {/* Charts Section: Sales Details Area/Line Chart & Order Status Donut Chart */}
+              <AdminCharts orders={orders} stats={stats} />
 
               {/* Recent Orders Table */}
               <div className="rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
